@@ -1,65 +1,211 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useRef } from "react";
+import { useReactToPrint } from "react-to-print";
+import InputPanel from "@/components/InputPanel";
+import ResumeDocument from "@/components/ResumeDocument";
+import { generateResume } from "@/app/actions/generate";
+import type { ResumeData, FormInput } from "@/lib/types";
 
 export default function Home() {
+  const [resumeData, setResumeData] = useState<ResumeData | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const handlePrint = useReactToPrint({
+    contentRef,
+    documentTitle: resumeData?.fullName
+      ? `${resumeData.fullName} - Resume`
+      : "Resume",
+  });
+
+  const handleGenerate = async (formData: FormInput) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await generateResume(formData);
+
+      if (result.success && result.data) {
+        setResumeData(result.data);
+      } else {
+        setError(result.error || "Failed to generate resume. Please try again.");
+      }
+    } catch {
+      setError("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="flex flex-col lg:flex-row h-screen overflow-hidden">
+      {/* ===== Left Panel — Input ===== */}
+      <div className="w-full lg:w-[420px] xl:w-[460px] flex-shrink-0 border-r border-slate-800/50 no-print">
+        <InputPanel onGenerate={handleGenerate} isLoading={isLoading} />
+      </div>
+
+      {/* ===== Right Panel — Preview ===== */}
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-slate-900/30">
+        {/* Toolbar */}
+        <div className="flex items-center justify-between px-6 py-3 border-b border-slate-800/50 bg-slate-950/60 backdrop-blur-sm flex-shrink-0 no-print">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5">
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  resumeData
+                    ? "bg-emerald-400 shadow-sm shadow-emerald-400/50"
+                    : "bg-slate-600"
+                }`}
+              />
+              <h2 className="text-xs font-medium text-slate-400">
+                {isLoading
+                  ? "Generating..."
+                  : resumeData
+                    ? "Resume Ready"
+                    : "Preview"}
+              </h2>
+            </div>
+          </div>
+
+          {resumeData && (
+            <button
+              onClick={() => handlePrint()}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-all duration-200 hover:shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98]"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              <svg
+                className="w-3.5 h-3.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
+                />
+              </svg>
+              Download PDF
+            </button>
+          )}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Preview Canvas */}
+        <div className="flex-1 overflow-auto p-6 lg:p-8">
+          <div className="flex justify-center">
+            {/* Error State */}
+            {error && (
+              <div className="w-full max-w-md p-5 rounded-2xl bg-red-500/10 border border-red-500/20 animate-fade-in">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <svg
+                      className="w-4 h-4 text-red-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-red-400">
+                      Generation Failed
+                    </p>
+                    <p className="text-xs text-red-400/70 mt-1 leading-relaxed">
+                      {error}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Loading State */}
+            {isLoading && !resumeData && !error && (
+              <div className="flex flex-col items-center gap-5 mt-32 animate-fade-in">
+                <div className="relative">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-cyan-500 flex items-center justify-center shadow-xl shadow-violet-500/25">
+                    <svg
+                      className="w-7 h-7 text-white animate-spin"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="absolute -inset-4 bg-violet-500/10 rounded-3xl blur-xl" />
+                </div>
+                <div className="text-center relative">
+                  <p className="text-sm font-semibold text-slate-200">
+                    Crafting your resume...
+                  </p>
+                  <p className="text-xs text-slate-500 mt-1.5 max-w-xs leading-relaxed">
+                    AI is analyzing the job description and tailoring your
+                    experience for maximum ATS compatibility
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Empty State */}
+            {!resumeData && !isLoading && !error && (
+              <div className="flex flex-col items-center gap-5 mt-32 animate-fade-in">
+                <div className="w-20 h-20 rounded-2xl bg-slate-800/40 flex items-center justify-center border border-slate-700/30">
+                  <svg
+                    className="w-10 h-10 text-slate-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
+                    />
+                  </svg>
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-medium text-slate-400">
+                    Your resume will appear here
+                  </p>
+                  <p className="text-xs text-slate-600 mt-1.5">
+                    Fill in the form and click{" "}
+                    <span className="text-violet-400 font-medium">
+                      Generate ATS Resume
+                    </span>
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Resume Preview */}
+            {resumeData && (
+              <div className="animate-slide-up">
+                <ResumeDocument data={resumeData} ref={contentRef} />
+              </div>
+            )}
+          </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
