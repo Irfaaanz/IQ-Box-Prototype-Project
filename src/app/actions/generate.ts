@@ -1,113 +1,49 @@
 "use server";
 
-import { GoogleGenAI, Type } from "@google/genai";
+import Groq from "groq-sdk";
 import type { ResumeData, FormInput } from "@/lib/types";
 
-const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY! });
 
-const resumeSchema = {
-  type: Type.OBJECT,
+const jsonSchema = {
+  type: "object" as const,
   properties: {
-    fullName: {
-      type: Type.STRING,
-      description: "The candidate's full name, exactly as provided",
-    },
-    email: {
-      type: Type.STRING,
-      description: "The candidate's email address, exactly as provided",
-    },
-    phone: {
-      type: Type.STRING,
-      description: "The candidate's phone number, exactly as provided",
-    },
-    location: {
-      type: Type.STRING,
-      description: "The candidate's location (city, state/country)",
-    },
-    linkedin: {
-      type: Type.STRING,
-      description: "The candidate's LinkedIn URL, exactly as provided",
-    },
-    summary: {
-      type: Type.STRING,
-      description:
-        "A compelling 2-3 sentence professional summary tailored to the target role, mirroring JD language",
-    },
-    skills: {
-      type: Type.ARRAY,
-      items: { type: Type.STRING },
-      description:
-        "Flat list of relevant technical and soft skills, prioritizing keywords from the job description for ATS matching",
-    },
+    fullName: { type: "string" },
+    email: { type: "string" },
+    phone: { type: "string" },
+    location: { type: "string" },
+    linkedin: { type: "string" },
+    summary: { type: "string" },
+    skills: { type: "array", items: { type: "string" } },
     experience: {
-      type: Type.ARRAY,
+      type: "array",
       items: {
-        type: Type.OBJECT,
+        type: "object",
         properties: {
-          title: { type: Type.STRING, description: "Job title" },
-          company: { type: Type.STRING, description: "Company name" },
-          location: { type: Type.STRING, description: "Job location" },
-          startDate: {
-            type: Type.STRING,
-            description: "Start date (e.g., Jan 2022)",
-          },
-          endDate: {
-            type: Type.STRING,
-            description: "End date (e.g., Present)",
-          },
-          bullets: {
-            type: Type.ARRAY,
-            items: { type: Type.STRING },
-            description:
-              "3-5 achievement bullet points rewritten using the STAR method, quantified with metrics",
-          },
+          title: { type: "string" },
+          company: { type: "string" },
+          location: { type: "string" },
+          startDate: { type: "string" },
+          endDate: { type: "string" },
+          bullets: { type: "array", items: { type: "string" } },
         },
-        required: [
-          "title",
-          "company",
-          "location",
-          "startDate",
-          "endDate",
-          "bullets",
-        ],
+        required: ["title", "company", "location", "startDate", "endDate", "bullets"],
       },
-      description: "Work experience entries in reverse chronological order",
     },
     education: {
-      type: Type.ARRAY,
+      type: "array",
       items: {
-        type: Type.OBJECT,
+        type: "object",
         properties: {
-          degree: { type: Type.STRING, description: "Degree name" },
-          institution: {
-            type: Type.STRING,
-            description: "University or school name",
-          },
-          location: { type: Type.STRING, description: "Institution location" },
-          graduationDate: {
-            type: Type.STRING,
-            description: "Graduation date (e.g., May 2020)",
-          },
-          gpa: {
-            type: Type.STRING,
-            description: "GPA if available, otherwise empty string",
-          },
-          highlights: {
-            type: Type.ARRAY,
-            items: { type: Type.STRING },
-            description: "Notable achievements, relevant coursework, or honors",
-          },
+          degree: { type: "string" },
+          institution: { type: "string" },
+          location: { type: "string" },
+          graduationDate: { type: "string" },
+          gpa: { type: "string" },
+          highlights: { type: "array", items: { type: "string" } },
         },
-        required: [
-          "degree",
-          "institution",
-          "location",
-          "graduationDate",
-          "gpa",
-          "highlights",
-        ],
+        required: ["degree", "institution", "location", "graduationDate", "gpa", "highlights"],
       },
-      description: "Education entries",
     },
   },
   required: [
@@ -127,7 +63,7 @@ export async function generateResume(
   formData: FormInput
 ): Promise<{ success: boolean; data?: ResumeData; error?: string }> {
   try {
-    const prompt = `You are a ruthless, expert technical recruiter and ATS-optimized resume writer with 20+ years of experience placing top candidates at Fortune 500 companies. Your job is to analyze a candidate's raw experience notes against a specific target job description, then produce a perfectly tailored, ATS-compliant resume that maximizes interview callback rates.
+    const systemPrompt = `You are a ruthless, expert technical recruiter and ATS-optimized resume writer with 20+ years of experience placing top candidates at Fortune 500 companies. Your job is to analyze a candidate's raw experience notes against a specific target job description, then produce a perfectly tailored, ATS-compliant resume that maximizes interview callback rates.
 
 YOUR STRICT RULES:
 1. KEYWORD OPTIMIZATION: Extract ALL relevant skills, technologies, certifications, and qualifications from the candidate's notes that match or relate to the target job description. Mirror exact keywords and phrases from the JD to beat ATS scanners.
@@ -138,7 +74,38 @@ YOUR STRICT RULES:
 6. CONTACT INFO: Use the contact information EXACTLY as provided — NEVER modify, fabricate, or hallucinate contact details.
 7. PROFESSIONAL TONE: Maintain a confident, results-oriented tone throughout. Eliminate filler words and weak language.
 
-CANDIDATE'S CONTACT INFORMATION:
+You MUST respond with ONLY valid JSON (no markdown, no explanation, no extra text) matching this EXACT schema:
+{
+  "fullName": "string",
+  "email": "string",
+  "phone": "string",
+  "location": "string",
+  "linkedin": "string",
+  "summary": "string (2-3 sentence professional summary)",
+  "skills": ["string", "string", "..."],
+  "experience": [
+    {
+      "title": "string",
+      "company": "string",
+      "location": "string",
+      "startDate": "string (e.g. Jan 2022)",
+      "endDate": "string (e.g. Present)",
+      "bullets": ["string (STAR method bullet)", "..."]
+    }
+  ],
+  "education": [
+    {
+      "degree": "string",
+      "institution": "string",
+      "location": "string",
+      "graduationDate": "string",
+      "gpa": "string (or empty string)",
+      "highlights": ["string", "..."]
+    }
+  ]
+}`;
+
+    const userPrompt = `CANDIDATE'S CONTACT INFORMATION:
 Full Name: ${formData.fullName}
 Email: ${formData.email}
 Phone: ${formData.phone || "Not provided"}
@@ -157,30 +124,48 @@ ${formData.jobDescription}
 
 Generate the optimized, ATS-tailored resume data now. Be aggressive in matching the candidate to the role.`;
 
-    const response = await genAI.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: resumeSchema,
+    const response = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      response_format: {
+        type: "json_object",
       },
+      temperature: 0.6,
+      max_tokens: 4096,
     });
 
-    const text = response.text;
+    const text = response.choices[0]?.message?.content;
     if (!text) {
       return { success: false, error: "No response received from AI." };
     }
 
     const data = JSON.parse(text) as ResumeData;
     return { success: true, data };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Resume generation error:", error);
+
+    const errorMessage =
+      error instanceof Error ? error.message : String(error);
+
+    if (
+      errorMessage.includes("429") ||
+      errorMessage.includes("rate_limit") ||
+      errorMessage.includes("quota")
+    ) {
+      return {
+        success: false,
+        error:
+          "Rate limit reached. Please wait a moment and try again.",
+      };
+    }
+
     return {
       success: false,
       error:
-        error instanceof Error
-          ? error.message
-          : "Failed to generate resume. Please try again.",
+        "Failed to generate resume. Please check your API key and try again.",
     };
   }
 }
