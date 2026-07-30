@@ -40,14 +40,14 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row h-screen overflow-hidden">
+    <div className="flex flex-col lg:flex-row min-h-screen lg:h-screen lg:overflow-hidden">
       {/* ===== Left Panel — Input ===== */}
       <div className="w-full lg:w-[420px] xl:w-[460px] flex-shrink-0 border-r border-slate-800/50 no-print">
         <InputPanel onGenerate={handleGenerate} isLoading={isLoading} />
       </div>
 
       {/* ===== Right Panel — Preview ===== */}
-      <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-slate-900/30">
+      <div className="flex-1 flex flex-col min-h-[600px] lg:min-h-0 overflow-hidden bg-slate-900/30">
         {/* Toolbar */}
         <div className="flex items-center justify-between px-6 py-3 border-b border-slate-800/50 bg-slate-950/60 backdrop-blur-sm flex-shrink-0 no-print">
           <div className="flex items-center gap-3">
@@ -199,7 +199,7 @@ export default function Home() {
 
             {/* Resume Preview */}
             {resumeData && (
-              <div className="animate-slide-up">
+              <div className="animate-slide-up w-full overflow-x-auto flex justify-center pb-6">
                 <ResumeDocument data={resumeData} ref={contentRef} />
               </div>
             )}

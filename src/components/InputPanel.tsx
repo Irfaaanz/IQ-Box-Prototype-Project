@@ -36,7 +36,7 @@ export default function InputPanel({ onGenerate, isLoading }: InputPanelProps) {
     formData.jobDescription.trim();
 
   return (
-    <div className="h-full flex flex-col bg-slate-950">
+    <div className="lg:h-full flex flex-col bg-slate-950">
       {/* Brand Header */}
       <div className="p-6 pb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
