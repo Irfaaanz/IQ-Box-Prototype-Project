@@ -205,7 +205,7 @@ export default function InputPanel({ onGenerate, isLoading }: InputPanelProps) {
 
         {/* Footer hint */}
         <p className="text-[10px] text-slate-600 text-center leading-relaxed">
-          Powered by Google Gemini AI · Structured output for reliable results
+          This is AI generated content. Please review and edit the resume before sending it to potential employers.
         </p>
       </form>
     </div>
