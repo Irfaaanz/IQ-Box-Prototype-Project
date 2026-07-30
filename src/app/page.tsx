@@ -53,9 +53,9 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen lg:h-screen lg:overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
+    <div className="flex flex-col lg:flex-row min-h-screen lg:h-screen lg:overflow-hidden app-container">
       {/* ===== Left Panel — Input ===== */}
-      <div className="w-full lg:w-[420px] xl:w-[460px] flex-shrink-0 border-r border-slate-200 dark:border-slate-800/80 no-print">
+      <div className="w-full lg:w-[420px] xl:w-[460px] flex-shrink-0 panel-border border-r no-print">
         <InputPanel
           onGenerate={handleGenerate}
           isLoading={isLoading}
@@ -65,9 +65,9 @@ export default function Home() {
       </div>
 
       {/* ===== Right Panel — Preview ===== */}
-      <div className="flex-1 flex flex-col min-h-[600px] lg:min-h-0 overflow-hidden bg-slate-100/70 dark:bg-slate-900/40">
+      <div className="flex-1 flex flex-col min-h-[600px] lg:min-h-0 overflow-hidden preview-panel-bg">
         {/* Toolbar */}
-        <div className="flex items-center justify-between px-6 py-3 border-b border-slate-200 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur-sm flex-shrink-0 no-print">
+        <div className="flex items-center justify-between px-6 py-3 border-b panel-border toolbar-bg flex-shrink-0 no-print">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
               <span
@@ -77,7 +77,7 @@ export default function Home() {
                     : "bg-slate-400 dark:bg-slate-600"
                 }`}
               />
-              <h2 className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <h2 className="text-xs font-semibold text-main-color">
                 {isLoading
                   ? "Generating Resume..."
                   : resumeData
@@ -91,7 +91,7 @@ export default function Home() {
             {/* Quick Theme Switcher Button */}
             <button
               onClick={toggleTheme}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-xs font-medium text-slate-700 dark:text-slate-300 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-200"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border panel-border toolbar-bg text-xs font-semibold text-main-color hover:border-blue-500 transition-all duration-200"
             >
               {isDarkMode ? (
                 <>
@@ -102,7 +102,7 @@ export default function Home() {
                 </>
               ) : (
                 <>
-                  <svg className="w-3.5 h-3.5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="w-3.5 h-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                   </svg>
                   <span>Dark Mode</span>
@@ -196,10 +196,10 @@ export default function Home() {
                   <div className="absolute -inset-4 bg-blue-500/10 rounded-3xl blur-xl" />
                 </div>
                 <div className="text-center relative">
-                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                  <p className="text-sm font-semibold text-main-color">
                     Crafting your resume...
                   </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 max-w-xs leading-relaxed">
+                  <p className="text-xs text-sub-color mt-1.5 max-w-xs leading-relaxed">
                     AI is analyzing the job description and tailoring your
                     experience for maximum ATS compatibility
                   </p>
@@ -210,9 +210,9 @@ export default function Home() {
             {/* Empty State */}
             {!resumeData && !isLoading && !error && (
               <div className="flex flex-col items-center gap-5 mt-32 animate-fade-in">
-                <div className="w-20 h-20 rounded-2xl bg-slate-200/60 dark:bg-slate-800/40 flex items-center justify-center border border-slate-300/50 dark:border-slate-700/30">
+                <div className="w-20 h-20 rounded-2xl empty-icon-card flex items-center justify-center border">
                   <svg
-                    className="w-10 h-10 text-blue-500/70 dark:text-blue-400/60"
+                    className="w-10 h-10 text-blue-500"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -226,10 +226,10 @@ export default function Home() {
                   </svg>
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  <p className="text-sm font-semibold text-main-color">
                     Your resume will appear here
                   </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-500 mt-1.5">
+                  <p className="text-xs text-sub-color mt-1.5">
                     Fill in the form and click{" "}
                     <span className="text-blue-600 dark:text-blue-400 font-semibold">
                       Generate ATS Resume

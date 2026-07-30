@@ -43,7 +43,7 @@ export default function InputPanel({
     formData.jobDescription.trim();
 
   return (
-    <div className="lg:h-full flex flex-col bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
+    <div className="lg:h-full flex flex-col input-panel-bg">
       {/* Brand Header */}
       <div className="p-6 pb-4 flex-shrink-0">
         <div className="flex items-center justify-between">
@@ -65,7 +65,7 @@ export default function InputPanel({
             </div>
             <div>
               <h1 className="text-xl font-bold gradient-text">ResumeAI</h1>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium -mt-0.5">
+              <p className="text-[11px] text-sub-color font-medium -mt-0.5">
                 AI-Powered Resume Enhancer
               </p>
             </div>
@@ -76,24 +76,24 @@ export default function InputPanel({
             <button
               type="button"
               onClick={onToggleTheme}
-              className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200"
+              className="p-2.5 rounded-xl toolbar-bg text-main-color hover:text-blue-600 dark:hover:text-blue-400 border panel-border transition-all duration-200"
               title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
             >
               {isDarkMode ? (
                 /* Sun Icon */
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg className="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
               ) : (
                 /* Moon Icon */
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg className="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                 </svg>
               )}
             </button>
           )}
         </div>
-        <p className="text-xs text-slate-600 dark:text-slate-400 mt-3.5 leading-relaxed">
+        <p className="text-xs text-sub-color mt-3.5 leading-relaxed">
           Paste your experience and a target job description. Our AI will craft
           an ATS-optimized resume tailored specifically to the role.
         </p>
@@ -101,7 +101,7 @@ export default function InputPanel({
 
       {/* Divider */}
       <div className="px-6">
-        <div className="h-px bg-slate-200 dark:bg-slate-800" />
+        <div className="h-px panel-border border-t" />
       </div>
 
       {/* Form */}
@@ -196,7 +196,7 @@ export default function InputPanel({
         >
           {isLoading ? (
             <>
-              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+              <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
                 <circle
                   className="opacity-25"
                   cx="12"
@@ -217,7 +217,7 @@ export default function InputPanel({
           ) : (
             <>
               <svg
-                className="w-4 h-4"
+                className="w-4 h-4 text-white"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -235,7 +235,7 @@ export default function InputPanel({
         </button>
 
         {/* Footer hint */}
-        <p className="text-[10px] text-slate-500 dark:text-slate-500 text-center leading-relaxed font-medium">
+        <p className="text-[10px] text-muted-color text-center leading-relaxed font-medium">
           Powered by Llama 3.3 AI · High ATS Compatibility
         </p>
       </form>
