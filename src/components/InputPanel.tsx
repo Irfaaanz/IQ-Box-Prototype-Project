@@ -6,9 +6,16 @@ import type { FormInput } from "@/lib/types";
 interface InputPanelProps {
   onGenerate: (data: FormInput) => void;
   isLoading: boolean;
+  isDarkMode?: boolean;
+  onToggleTheme?: () => void;
 }
 
-export default function InputPanel({ onGenerate, isLoading }: InputPanelProps) {
+export default function InputPanel({
+  onGenerate,
+  isLoading,
+  isDarkMode,
+  onToggleTheme,
+}: InputPanelProps) {
   const [formData, setFormData] = useState<FormInput>({
     fullName: "",
     email: "",
@@ -36,33 +43,57 @@ export default function InputPanel({ onGenerate, isLoading }: InputPanelProps) {
     formData.jobDescription.trim();
 
   return (
-    <div className="lg:h-full flex flex-col bg-slate-950">
+    <div className="lg:h-full flex flex-col bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
       {/* Brand Header */}
       <div className="p-6 pb-4 flex-shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-violet-500/20">
-            <svg
-              className="w-[18px] h-[18px] text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/25">
+              <svg
+                className="w-5 h-5 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+            </div>
+            <div>
+              <h1 className="text-xl font-bold gradient-text">ResumeAI</h1>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium -mt-0.5">
+                AI-Powered Resume Enhancer
+              </p>
+            </div>
+          </div>
+
+          {/* Theme Toggle Button (Header option) */}
+          {onToggleTheme && (
+            <button
+              type="button"
+              onClick={onToggleTheme}
+              className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200"
+              title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
-            </svg>
-          </div>
-          <div>
-            <h1 className="text-lg font-bold gradient-text">ResumeAI</h1>
-            <p className="text-[10px] text-slate-500 -mt-0.5">
-              AI-Powered Resume Builder
-            </p>
-          </div>
+              {isDarkMode ? (
+                /* Sun Icon */
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              ) : (
+                /* Moon Icon */
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+              )}
+            </button>
+          )}
         </div>
-        <p className="text-xs text-slate-500 mt-4 leading-relaxed">
+        <p className="text-xs text-slate-600 dark:text-slate-400 mt-3.5 leading-relaxed">
           Paste your experience and a target job description. Our AI will craft
           an ATS-optimized resume tailored specifically to the role.
         </p>
@@ -70,7 +101,7 @@ export default function InputPanel({ onGenerate, isLoading }: InputPanelProps) {
 
       {/* Divider */}
       <div className="px-6">
-        <div className="h-px bg-gradient-to-r from-transparent via-slate-700/50 to-transparent" />
+        <div className="h-px bg-slate-200 dark:bg-slate-800" />
       </div>
 
       {/* Form */}
@@ -80,8 +111,8 @@ export default function InputPanel({ onGenerate, isLoading }: InputPanelProps) {
       >
         {/* Contact Info */}
         <fieldset className="space-y-2.5">
-          <legend className="text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-500 flex items-center gap-2 mb-1">
-            <span className="w-4 h-px bg-slate-700" />
+          <legend className="text-[10px] font-bold uppercase tracking-[0.15em] text-blue-600 dark:text-blue-400 flex items-center gap-2 mb-1">
+            <span className="w-4 h-px bg-blue-500/50" />
             Contact Details
           </legend>
           <input
@@ -129,8 +160,8 @@ export default function InputPanel({ onGenerate, isLoading }: InputPanelProps) {
 
         {/* Experience */}
         <div className="space-y-2">
-          <label className="text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-500 flex items-center gap-2">
-            <span className="w-4 h-px bg-slate-700" />
+          <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-blue-600 dark:text-blue-400 flex items-center gap-2">
+            <span className="w-4 h-px bg-blue-500/50" />
             Your Experience &amp; Skills *
           </label>
           <textarea
@@ -144,8 +175,8 @@ export default function InputPanel({ onGenerate, isLoading }: InputPanelProps) {
 
         {/* Job Description */}
         <div className="space-y-2">
-          <label className="text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-500 flex items-center gap-2">
-            <span className="w-4 h-px bg-slate-700" />
+          <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-blue-600 dark:text-blue-400 flex items-center gap-2">
+            <span className="w-4 h-px bg-blue-500/50" />
             Target Job Description *
           </label>
           <textarea
@@ -161,7 +192,7 @@ export default function InputPanel({ onGenerate, isLoading }: InputPanelProps) {
         <button
           type="submit"
           disabled={!isValid || isLoading}
-          className="btn-gradient w-full py-3.5 rounded-xl text-sm font-semibold text-white flex items-center justify-center gap-2.5"
+          className="btn-gradient w-full py-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2.5 shadow-lg shadow-blue-500/20"
         >
           {isLoading ? (
             <>
@@ -204,8 +235,8 @@ export default function InputPanel({ onGenerate, isLoading }: InputPanelProps) {
         </button>
 
         {/* Footer hint */}
-        <p className="text-[10px] text-slate-600 text-center leading-relaxed">
-          This is AI generated content. Please review and edit the resume before sending it to potential employers.
+        <p className="text-[10px] text-slate-500 dark:text-slate-500 text-center leading-relaxed font-medium">
+          Powered by Llama 3.3 AI · High ATS Compatibility
         </p>
       </form>
     </div>
